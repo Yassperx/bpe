@@ -11,7 +11,7 @@ class MyClient(discord.Client):
         
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
-        self.bpe.load_from_file("assets/small_saved.txt")
+        self.bpe.load_from_file("assets/medium_saved.txt")
 
     async def on_message(self, message):
         if not message.content:
@@ -23,11 +23,13 @@ class MyClient(discord.Client):
         message.content = message.content[1:]
 
         if not message.content:
+            await message.channel.send("mb bot.py failed")
             return
 
         ret = self.bpe.follows(message.content)
 
-        if not ret
+        if not ret:
+            await message.channel.send("mb bot.py failed")
             return
 
         await message.channel.send(ret)

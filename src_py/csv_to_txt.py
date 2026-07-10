@@ -1,5 +1,6 @@
 import sys
 import csv
+import re
 
 def csv_to_txt(csv_path : str):
     messages = []
@@ -17,6 +18,8 @@ def csv_to_txt(csv_path : str):
 
 def filter(content : str, output_path: str):
     content = content.encode("ascii", errors="ignore").decode() 
+    content = re.sub(r"[,()\[\]]", "", content)
+    content = content.lower()
     with open(output_path, 'w') as f:
         f.write(content)
 

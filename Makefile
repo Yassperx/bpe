@@ -1,7 +1,7 @@
 CC=cc
 CFLAGS=-Wall -Werror
 DEBUGFLAGS=-fsanitize=address,undefined -ggdb
-RELEASEFLAGS=-O2
+RELEASEFLAGS=-O3
 
 PYTHON=~/penv/bin/python
 

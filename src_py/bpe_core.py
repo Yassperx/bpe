@@ -6,11 +6,11 @@ def eprint(*args, **kwargs):
 
 _CURRENT_UID : int = 0
 
-_SPLIT_TOK = b'\x01'
-_OPEN_PAREN = b'\x02'
-_CLOSE_PAREN = b'\x03'
-_OPEN_BRACK = b'\x04'
-_CLOSE_BRACK = b'\x05'
+_SPLIT_TOK = ','
+_OPEN_PAREN = '('
+_CLOSE_PAREN = ')'
+_OPEN_BRACK = '['
+_CLOSE_BRACK = ']'
 
 class Token:
     left : str | Self

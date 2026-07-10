@@ -37,11 +37,9 @@
 #define VecFront(vec) (vec)->items[assert((vec)->count && "EmptyVec"), 0]
 
 #define Swap(Type, a, b) do { \
-    Type *x = &(a);           \
-    Type *y = &(b);           \
-    Type *tmp = x;            \
-    *x = *y;                  \
-    *y = *tmp;                \
+    Type tmp = *(a);          \
+    *(a) = *(b);              \
+    *(b) = tmp;               \
   } while(0)
 
 #define Todo(msg) do {                                                          \
