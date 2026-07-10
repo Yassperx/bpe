@@ -36,13 +36,25 @@
   
 #define VecFront(vec) (vec)->items[assert((vec)->count && "EmptyVec"), 0]
 
-#define swap(Type, a, b) do { \
+#define Swap(Type, a, b) do { \
     Type *x = &(a);           \
     Type *y = &(b);           \
     Type *tmp = x;            \
     *x = *y;                  \
     *y = *tmp;                \
   } while(0)
+
+#define Todo(msg) do {                                                          \
+    fprintf(stderr, "%s:%d: not implemented yet: %s\n", __FILE__, __LINE__, msg); \
+    abort();                                                                    \
+  } while(0)
+
+#define Unreachable(msg) do {                                                  \
+    fprintf(stderr, "%s:%d: how did i get here? %s\n", __FILE__, __LINE__, msg); \
+    abort();                                                                   \
+  } while(0)
+
+#define Here(msg) fprintf(stderr, "%s:%d: HERE: %s\n", __FILE__, __LINE__, msg)
 
 typedef struct {
   char *items;

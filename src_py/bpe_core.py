@@ -5,11 +5,12 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 _CURRENT_UID : int = 0
-_SPLIT_TOK = 'Ò'
-_OPEN_PAREN = 'Ó'
-_CLOSE_PAREN = 'Ô'
-_OPEN_BRACK = 'Õ'
-_CLOSE_BRACK = 'Ö'
+
+_SPLIT_TOK = b'\x01'
+_OPEN_PAREN = b'\x02'
+_CLOSE_PAREN = b'\x03'
+_OPEN_BRACK = b'\x04'
+_CLOSE_BRACK = b'\x05'
 
 class Token:
     left : str | Self

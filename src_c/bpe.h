@@ -1,28 +1,32 @@
 #ifndef BPE_H
 #define BPE_H
 
-#include <stdio.h>
-#include <string.h>
 #include "core.h"
 
-typedef struct {
-  int id, freq;
-  int left, right;
-  bool active;
+static size_t current_tok_id = 0;
+
+typedef struct Token {
+  size_t id;
+  union {
+    char c;
+    struct Token *ptr;
+  } left;
+  struct Token *right;
 } Token;
 
 typedef struct {
-  Token *items;
+  Token **items;
   size_t count;
   size_t capacity;
+  char delim[5];
 } Tokens;
 
-void DebugToks(Tokens toks);
-void TokDump(Tokens *toks, size_t id, StringBuf *sb);
-size_t PushTokChar(Tokens *toks, unsigned char c);
-size_t PushTokMerge(Tokens *toks, int l_id, int r_id);
+Token* TokChar(char c);
+Token* TokMerge(Token* l, Token *r);
+void TokFree(Token *tok);
+void ToksFree(Tokens *toks);
+void ToksDebug(Tokens *toks);
+void TokStr(Token *tok, StringBuf *sb);
 void FillToksFromSb(Tokens *toks, StringBuf *sb);
-void DumpAllToks(Tokens *toks);
-bool Step(Tokens *toks);
 
 #endif // BPE_H
