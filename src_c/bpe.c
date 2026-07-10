@@ -112,7 +112,34 @@ bool Step(Tokens *toks){
     if (pairs.items[i].freq > best_pair.freq) best_pair = pairs.items[i];
   }
 
+  for (size_t i = 0; i < pairs.count; ++i) {
+    printf("Pair: "Sv_Fmt"\n", Sv_Arg(pairs.items[i].sv));
+  }
+
   printf("Most frequent pair: \'"Sv_Fmt"\'\n", Sv_Arg(best_pair.sv));
+
+  // int i = 0;
+  // while (i < pairs.count) {
+  //   if (i + 1 < pairs.count){
+  //     StringBuf sb = {0};
+  //     PushTokMerge(toks, i, i+1);
+  //     TokDump(toks, toks->count - 1, &sb[i]);
+  //     StringBufNullT(&sb[i]);
+  //     StringView sv = SvFromSb(sb[i]);
+  //     Pair pair = { .sv = sv, .freq = 1 };
+  //     ToksPop(toks);
+  //     if () {
+
+  //     }
+  //     else VecPush(toks, toks->items[i]);
+  //   } else {
+  //     VecPush(toks, toks->items[i]);
+  //   }
+  // }
+
+  // for (size_t i = 0; i < pairs.count; ++i) {
+  //   printf("New Pair: "Sv_Fmt"\n", Sv_Arg(pairs.items[i].sv));
+  // }
 
   VecFree(&pairs);
   for (size_t i = 0; i < toks->count; ++i) VecFree(&sb[i]);
