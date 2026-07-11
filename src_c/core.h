@@ -11,7 +11,7 @@
     (vec)->capacity = 0;  \
   } while(0)
 
-#define VecEnsureCap(vec, cap) do {                                                   \
+#define VecReserve(vec, cap) do {                                                   \
     if (cap >= (vec)->capacity) {                                                     \
       if (!(vec)->capacity) (vec)->capacity++, (vec)->count = 0;                      \
       while((vec)->capacity < cap) (vec)->capacity *= 2;                              \
@@ -20,7 +20,7 @@
   } while(0)
 
 #define VecPush(vec, x) do {             \
-    VecEnsureCap(vec, (vec)->count + 1); \
+    VecReserve(vec, (vec)->count + 1); \
     (vec)->items[(vec)->count++] = x;    \
   } while(0)
 
@@ -78,5 +78,11 @@ typedef struct {
 #endif
 
 StringView SvFromSb(StringBuf sb);
+StringBuf SbFromSv(StringView sv);
+
+void SvChopLeft(StringView *sv, size_t n);
+void SvChopRight(StringView *sv, size_t n);
+bool SvSkip(StringView *sv, char c);
+StringView SvChopDelim(StringView *sv, char delim);
 
 #endif // CORE_H

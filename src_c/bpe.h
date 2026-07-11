@@ -22,8 +22,9 @@ typedef struct {
   char delim[5];
 } Tokens;
 
-Token* TokChar(char c);
-Token* TokMerge(Token* l, Token *r);
+Token* TokChar(char c, size_t id);
+Token* TokMerge(Token* l, Token *r, size_t id);
+Token* TokLoad(char delim[5], StringView sv);
 
 void TokFree(Token *tok);
 void TokStr(Token *tok, StringBuf *sb);
@@ -31,7 +32,10 @@ void TokDump(Token *tok, FILE *file, size_t level);
 
 void ToksFree(Tokens *toks);
 void ToksDebug(Tokens *toks);
-void FillToksFromSb(Tokens *toks, StringBuf *sb);
+void ToksFromSb(Tokens *toks, StringBuf *sb);
 bool ToksStep(Tokens *toks);
+
+void ToksSave(Tokens* toks, const char* path);
+void ToksLoad(Tokens* toks, const char* path);
 
 #endif // BPE_H

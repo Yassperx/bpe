@@ -1,18 +1,50 @@
 #include "bpe.h"
 
-Token* TokChar(char c){
+Token* TokChar(char c, size_t id){
   Token *tok = malloc(sizeof(Token));
-  tok->id = current_tok_id++;
+  tok->id = id;
   tok->left.c = c;
   tok->right = NULL;
   return tok;
 }
 
-Token* TokMerge(Token* l, Token *r){
+Token* TokMerge(Token* l, Token *r, size_t id){
   Token *tok = malloc(sizeof(Token));
-  tok->id = current_tok_id++;
+  tok->id = id;
   tok->left.ptr = l;
   tok->right = r;
+  return tok;
+}
+
+Token *TokLoad(char delim[5], StringView sv){
+  if (!SvSkip(&sv, delim[3])){
+    fprintf(stderr, "ERROR: token must present his id \'"Sv_Fmt"\'\n", Sv_Arg(sv));
+    return NULL;
+  }
+  StringView num = SvChopDelim(&sv, delim[4]);
+  StringBuf sb = SbFromSv(num);
+  StringBufNullT(&sb);
+  size_t id = atoi(sb.items);
+  Token *tok = NULL;
+  if (sv.view[0] == delim[1]) {
+    SvChopLeft(&sv, 1);
+    SvChopRight(&sv, 1);
+    size_t i = 0, depth = 0;
+    while(!(sv.view[i] == delim[0] && depth == 0)){
+      if (sv.view[i] == delim[1]) depth++;
+      if (sv.view[i] == delim[2]) assert(depth > 0), depth--;
+      i++;
+    }
+    StringView left = sv, right = sv;
+    SvChopLeft(&left, i + 1);
+    SvChopRight(&right, sv.count - i);
+    Token *l = TokLoad(delim, left);
+    Token *r = TokLoad(delim, right);
+    tok = TokMerge(l, r, current_tok_id++);
+  } else {
+    tok = TokChar(sv.view[0], current_tok_id++);
+  }
+  VecFree(&sb);
   return tok;
 }
 
@@ -32,7 +64,7 @@ void ToksFree(Tokens *toks){
 }
 
 void ToksDebug(Tokens *toks){
-  for (size_t i = 0; i < toks->count; ++i) {
+  for (size_t i = 0; i < toks->count; ++i){
     StringBuf sb = {0};
     TokStr(toks->items[i], &sb);
     printf("%c%.*s%c", toks->delim[1], (int)sb.count, sb.items, toks->delim[2]);
@@ -64,10 +96,10 @@ void TokDump(Token *tok, FILE *file, size_t level){
   if (level == 0) fprintf(file, "\n");
 }
 
-void FillToksFromSb(Tokens *toks, StringBuf *sb){
+void ToksFromSb(Tokens *toks, StringBuf *sb){
   for (size_t i = 0; i < sb->count; ++i){
     if (sb->items[i] == '\n') continue;
-    VecPush(toks, TokChar(sb->items[i]));
+    VecPush(toks, TokChar(sb->items[i], current_tok_id++));
   }
 }
 
@@ -92,12 +124,12 @@ bool ToksStep(Tokens *toks){
   if (toks->count <= 1) return false;
 
   size_t sbs_count = toks->count - 1; 
-  StringBuf sbs[sbs_count] = {};
+  StringBuf *sbs = calloc(sbs_count, sizeof(StringBuf));
   Pairs pairs = {0};
-  VecEnsureCap(&pairs, sbs_count);
+  VecReserve(&pairs, sbs_count);
 
   for (size_t i = 0; i + 1 < toks->count; ++i){
-    Token *tok_pair = TokMerge(toks->items[i], toks->items[i+1]);
+    Token *tok_pair = TokMerge(toks->items[i], toks->items[i+1], 0);
     TokStr(tok_pair, &sbs[i]);
     StringBufNullT(&sbs[i]);
     Pair pair = { .str = sbs[i].items, .tok_id = i, .freq = 1 };
@@ -135,7 +167,8 @@ bool ToksStep(Tokens *toks){
   }
 
   Tokens new_toks = {0};
-  VecEnsureCap(&new_toks, toks->capacity);
+  for (size_t i = 0; i < 5; ++i) new_toks.delim[i] = toks->delim[i];
+  VecReserve(&new_toks, toks->capacity);
 
   size_t i = 0;
   while (i < toks->count){
@@ -144,10 +177,11 @@ bool ToksStep(Tokens *toks){
       i += 1;
     } else {
       StringBuf tmp = {0};
-      Token *tok_pair = TokMerge(toks->items[i], toks->items[i + 1]);
+      Token *tok_pair = TokMerge(toks->items[i], toks->items[i + 1], 0);
       TokStr(tok_pair, &tmp);
       StringBufNullT(&tmp);
       if (strcmp(best.str, tmp.items) == 0){
+        tok_pair->id = current_tok_id++;
         VecPush(&new_toks, tok_pair); 
         i += 2;
       } else {
@@ -162,5 +196,39 @@ bool ToksStep(Tokens *toks){
   VecFree(&new_toks);
   VecFree(&pairs);
   for (size_t i = 0; i < sbs_count; ++i) VecFree(&sbs[i]);
+  free(sbs);
   return true;
+}
+
+void ToksSave(Tokens* toks, const char* path) {
+  FILE* file = fopen(path, "w");
+  if (!file) {
+    fprintf(stderr, "Failed to open %s for writing\n", path);
+    return;
+  }
+  fprintf(file, "%.*s\n", 5, toks->delim);
+  for (size_t i = 0; i < toks->count; ++i) TokDump(toks->items[i], file, 0);
+  fclose(file);
+}
+
+void ToksLoad(Tokens *toks, const char* path){
+  current_tok_id = 0;
+  StringBuf sb = {0};
+  ReadEntireFile(path, &sb);
+  StringView content = SvFromSb(sb);
+  StringView line = {0};
+  bool first = true;
+  while(true){
+    line = SvChopDelim(&content, '\n');
+    if (!line.count) break;
+    if (first){
+      first = false;
+      for (size_t i = 0; i < 5; ++i) toks->delim[i] = line.view[i];
+    } else {
+      Token *tok = TokLoad(toks->delim, line);
+      if (!tok) continue;
+      VecPush(toks, tok);
+    }
+  }
+  VecFree(&sb);
 }
