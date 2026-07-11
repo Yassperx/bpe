@@ -1,5 +1,6 @@
 bin/
 assets/
+outputs/
 BPE.sublime-project
 BPE.sublime-workspace
 key.sh
