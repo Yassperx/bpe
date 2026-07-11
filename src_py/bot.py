@@ -18,7 +18,7 @@ class MyClient(discord.Client):
             return
 
         if message.content == "gimme":
-            await message.channel.send(self.bpe.fetch())
+            await message.reply(self.bpe.fetch())
             return
 
         if message.content[0] != '!':
@@ -33,10 +33,10 @@ class MyClient(discord.Client):
         ret = self.bpe.follows(message.content)
 
         if not ret:
-            await message.channel.send("mb bot.py failed")
+            await message.reply("mb bot.py failed")
             return
 
-        await message.channel.send(ret)
+        await message.reply(ret)
 
 intents = discord.Intents.default()
 intents.message_content = True
