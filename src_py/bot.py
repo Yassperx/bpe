@@ -11,10 +11,14 @@ class MyClient(discord.Client):
         
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
-        self.bpe.load_from_file("assets/medium_saved.txt")
+        self.bpe.load_from_file("outputs/big_data.txt")
 
     async def on_message(self, message):
         if not message.content:
+            return
+
+        if message.content == "gimme":
+            await message.channel.send(self.bpe.fetch())
             return
 
         if message.content[0] != '!':

@@ -1,5 +1,7 @@
 from typing import Self
 import sys
+from random import randint, random
+from math import log
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -213,21 +215,24 @@ class Bpe:
 
     def follows(self, word: str) -> str:
         self.fix_freq()
-        found = False
-        pr : tuple[str, int] = ("", 0)
+        word = word.lower()
+
+        candidates: dict[str, int] = {}
         for tok in self.toks:
-            if word in str(tok):
-                continuation = str(tok)
-                continuation = continuation.split(word)[-1]
-                tot = word + continuation
-                if continuation:
-                    if len(tot) > pr[1]:
-                        pr = (tot, len(tot))
-                found = True
-        if found:
-            return pr[0]
-        else:
-            return "mb i cant answer ts gng"
+            s = str(tok)
+            s = s.strip()
+            if word in s and word != s:
+                candidates[s] = 0.2 * log(len(s)) + (1.0 - 0.2) * tok.freq + random()
+
+        if not candidates:
+            return "mb bpe.py failed"
+
+        best = max(candidates.items(), key=lambda kv: (kv[1], len(kv[0])))
+        return best[0]
+
+    def fetch(self) -> str:
+        n = len(self.toks)
+        return str(self.toks[randint(0, n - 1)])
 
 def usage():
     print("USAGE:")
