@@ -1,6 +1,7 @@
 bin/
 assets/
 outputs/
+src_py/__pycache__/
 BPE.sublime-project
 BPE.sublime-workspace
 key.sh
