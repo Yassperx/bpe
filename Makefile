@@ -14,9 +14,6 @@ SOURCE=$(SRC_C_DIR)/main.c $(SRC_C_DIR)/bpe.c $(SRC_C_DIR)/core.c
 BIN=bin/main 
 DATA_SIZE=medium
 
-run: release
-	./bin/main $(ASSETS_DIR)/$(DATA_SIZE)_data.txt $(OUTPUTS_DIR)/$(DATA_SIZE)_saved.txt
-
 release: src_c/main.c
 	$(CC) $(SOURCE) -o $(BIN) $(CLFAGS) $(RELEASEFLAGS)
 
