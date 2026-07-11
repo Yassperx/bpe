@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
   toks.delim[0] = ',', toks.delim[1] = '(', toks.delim[2] = ')', toks.delim[3] = '[', toks.delim[4] = ']'; 
   StringBuf sb = {0};
 
-  ReadEntireFile(data_file], &sb);
+  ReadEntireFile(data_file, &sb);
   ToksFromSb(&toks, &sb);
 
   size_t i = 1;
