@@ -212,23 +212,56 @@ class Bpe:
                     j += 1
         self.toks = new_toks
         return True
-
+    
+    # This function was generated with AI because im lazy for now, sowwy
     def follows(self, word: str) -> str:
         self.fix_freq()
         word = word.lower()
 
-        candidates: dict[str, int] = {}
-        for tok in self.toks:
-            s = str(tok)
-            s = s.strip()
-            if word in s and word != s:
-                candidates[s] = 0.2 * log(len(s)) + (1.0 - 0.2) * tok.freq + random()
+        # Build a transition table: token text -> {next token text: count}
+        transitions: dict[str, dict[str, int]] = {}
+        for i in range(len(self.toks) - 1):
+            cur = str(self.toks[i])
+            nxt = str(self.toks[i + 1])
+            transitions.setdefault(cur, {})
+            transitions[cur][nxt] = transitions[cur].get(nxt, 0) + 1
 
-        if not candidates:
-            return "mb bpe.py failed"
+        # Find where the input word occurs as a token in the corpus.
+        starts = [i for i, tok in enumerate(self.toks) if str(tok) == word]
+        if not starts:
+            # Fall back: word might only appear as part of a larger merged token
+            starts = [i for i, tok in enumerate(self.toks) if word in str(tok)]
+        if not starts:
+            return ""
 
-        best = max(candidates.items(), key=lambda kv: (kv[1], len(kv[0])))
-        return best[0]
+        idx = starts[randint(0, len(starts) - 1)]
+        current = str(self.toks[idx])
+        sentence = current
+
+        max_tokens = randint(10, 20)
+        for _ in range(max_tokens):
+            options = transitions.get(current)
+            if not options:
+                break
+
+            items = list(options.items())
+            # log-weighted sampling: common transitions favored, but not guaranteed
+            weights = [log(freq + 1) + 1 for _, freq in items]
+            total_weight = sum(weights)
+            r = random() * total_weight
+
+            acc = 0.0
+            chosen = items[-1][0]
+            for (tok_str, _), w in zip(items, weights):
+                acc += w
+                if r <= acc:
+                    chosen = tok_str
+                    break
+
+            sentence += chosen
+            current = chosen
+
+        return sentence
 
     def fetch(self) -> str:
         n = len(self.toks)

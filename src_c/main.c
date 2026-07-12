@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     printf("Iterated %zu time\n", i);
     if (i % 1000 == 0) {
       char path[256];
-      snprintf(path, sizeof(path), "%s%dk.txt", save_file, i / 1000);
+      snprintf(path, sizeof(path), "%s%zuk.txt", save_file, i / 1000);
       ToksSave(&toks, path);
       printf("Saved checkpoint %zu at iteration %zu\n", i / 1000, i);
     }

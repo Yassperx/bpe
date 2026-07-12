@@ -37,12 +37,12 @@ class MyClient(discord.Client):
             return
 
         ret = self.bpe.follows(message.content)
-
+        
         if not ret:
-            await message.reply("mb bot.py failed")
+            await message.channel.send("mb bot.py failed")
             return
-
-        await message.reply(ret)
+        
+        await message.channel.send(ret)
     
 def main(args: list[str]):
     intents = discord.Intents.default()

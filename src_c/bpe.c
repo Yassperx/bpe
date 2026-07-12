@@ -98,7 +98,7 @@ void TokDump(Token *tok, FILE *file, size_t level){
 
 void ToksFromSb(Tokens *toks, StringBuf *sb){
   for (size_t i = 0; i < sb->count; ++i){
-    if (sb->items[i] == '\n') continue;
+    if (sb->items[i] == '\n') sb->items[i] = ' ';
     VecPush(toks, TokChar(sb->items[i], current_tok_id++));
   }
 }
