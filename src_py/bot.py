@@ -26,17 +26,19 @@ class MyClient(discord.Client):
         if message.content == "gimme":
             await message.reply(self.bpe.fetch())
             return
-
-        if message.content[0] != '!':
+        
+        if message.content[0] != '!' and message.content[0] != '?':
             return
+        first = message.content[0]
 
         message.content = message.content[1:]
 
         if not message.content:
             await message.channel.send("mb bot.py failed")
             return
-
-        ret = self.bpe.follows(message.content)
+        
+        sep = '|' if first == '?' else ''
+        ret = self.bpe.follows(message.content, sep)
         
         if not ret:
             await message.channel.send("mb bot.py failed")

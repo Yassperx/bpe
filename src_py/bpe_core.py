@@ -214,7 +214,7 @@ class Bpe:
         return True
     
     # This function was generated with AI because im lazy for now, sowwy
-    def follows(self, word: str) -> str:
+    def follows(self, word: str, sep: str) -> str:
         self.fix_freq()
         word = word.lower()
 
@@ -238,7 +238,7 @@ class Bpe:
         current = str(self.toks[idx])
         sentence = current
 
-        max_tokens = randint(10, 20)
+        max_tokens = randint(5, 15)
         for _ in range(max_tokens):
             options = transitions.get(current)
             if not options:
@@ -258,7 +258,7 @@ class Bpe:
                     chosen = tok_str
                     break
 
-            sentence += chosen
+            sentence += sep + chosen
             current = chosen
 
         return sentence
